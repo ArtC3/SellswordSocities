@@ -2,11 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[ExecuteInEditMode]
 [RequireComponent(typeof(MeshFilter))]
 [RequireComponent(typeof(MeshRenderer))]
 [RequireComponent(typeof(MeshCollider))]
-public class TileMap : MonoBehaviour {
+public class TileGraphicsMap : MonoBehaviour {
 
     public int size_x = 10;
     public int size_y = 10;
@@ -18,21 +17,21 @@ public class TileMap : MonoBehaviour {
     // Use this for initialization
     void Start () {
 
-        BuildMesh();
+        //BuildMesh();
 	}
 
-    Color[][] ChopTerrainTiles()
+    Color[][] ChopUpTiles()
     {
         int numTilesPerRow = terrainTiles.width / tileResolution;
         int numRows = terrainTiles.height / tileResolution;
 
-        Color[][] tiles = new Color[numTilesPerRow * numRows][];
+        Color[][] tiles = new Color[numTilesPerRow][];
 
-        for(int y = 0; y < numRows; y++)
+        for (int y = 0; y < numRows; y++)
         {
-            for(int x = 0; x < numTilesPerRow; x++)
+            for (int x = 0; x < numTilesPerRow; x++)
             {
-                tiles[y*numTilesPerRow + x] = terrainTiles.GetPixels(x * tileResolution, y * tileResolution, tileResolution, tileResolution);
+                tiles[y * numTilesPerRow + x] = terrainTiles.GetPixels(x * tileResolution, y * tileResolution, tileResolution, tileResolution);
             }
         }
 
@@ -41,29 +40,30 @@ public class TileMap : MonoBehaviour {
 
     void BuildTexture()
     {
+        TileDataMap map = new TileDataMap(size_x, size_y);
 
-        int textWidth = size_x * tileResolution;
-        int textHeight = size_y * tileResolution;
-        Texture2D texture = new Texture2D(textWidth, textHeight);
+        int texWidth = size_x * tileResolution;
+        int texHeight = size_y * tileResolution;
+        Texture2D texture = new Texture2D(texWidth, texHeight);
 
-        Color[][] tiles = ChopTerrainTiles();
+        Color[][] tiles = ChopUpTiles();
 
         for(int y = 0; y < size_y; y++)
         {
-            for(int x = 0; x< size_x; x++)
+            for (int x = 0; x < size_x; x++)
             {
-                Color[] p = tiles[Random.Range(0, 4)];
+                Color[] p = tiles[map.GetTileAt(x, y)];
                 texture.SetPixels(x * tileResolution, y * tileResolution, tileResolution, tileResolution, p);
             }
         }
 
         texture.filterMode = FilterMode.Point;
-        
         texture.Apply();
 
         MeshRenderer mesh_renderer = GetComponent<MeshRenderer>();
         mesh_renderer.sharedMaterials[0].mainTexture = texture;
-        Debug.Log("Finished Textures");
+
+        Debug.Log("Finished textures");
     }
 
     public void BuildMesh()
@@ -87,7 +87,7 @@ public class TileMap : MonoBehaviour {
         {
             for(x = 0; x < vsize_x; x++)
             {
-                vertices[y * vsize_x + x] = new Vector2(x * tileSize, y * tileSize);
+                vertices[y * vsize_x + x] = new Vector2(x * tileSize, -y * tileSize);
                 normals[y * vsize_x + x] = Vector2.up;
                 uv[y * vsize_x + x] = new Vector2((float)x / size_x, (float)y / size_y);
             }
@@ -101,12 +101,12 @@ public class TileMap : MonoBehaviour {
                 int squareIndex = y * size_x + x;
                 int triOffset = squareIndex * 6;
                 triangles[triOffset + 0] = y * vsize_x + x +           0;
-                triangles[triOffset + 1] = y * vsize_x + x + vsize_x + 0;
-                triangles[triOffset + 2] = y * vsize_x + x + vsize_x + 1;
+                triangles[triOffset + 2] = y * vsize_x + x + vsize_x + 0;
+                triangles[triOffset + 1] = y * vsize_x + x + vsize_x + 1;
 
                 triangles[triOffset + 3] = y * vsize_x + x +           0;
-                triangles[triOffset + 4] = y * vsize_x + x + vsize_x + 1;
-                triangles[triOffset + 5] = y * vsize_x + x +           1;
+                triangles[triOffset + 5] = y * vsize_x + x + vsize_x + 1;
+                triangles[triOffset + 4] = y * vsize_x + x +           1;
             }
         }
         Debug.Log("Triangles finished");
