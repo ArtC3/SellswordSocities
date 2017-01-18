@@ -76,53 +76,121 @@ public class TileDataMap {
             }
         }
 
-        buildings = new List<DataBuilding>();
+        //creates a random avenue or main street to act as an anchor for building spawns
+        MakeAvenue();
 
-        //number of allowed fails before the guaranteed buildings loop is ditched
-        int maxFails = 10;
+        //buildings = new List<DataBuilding>();
 
-        //set the number of guaranteed buildings per level here
-        while (buildings.Count <10)
+        ////number of allowed fails before the guaranteed buildings loop is ditched
+        //int maxFails = 10;
+
+        ////set the number of guaranteed buildings per level here
+        //while (buildings.Count < 6)
+        //{
+        //    int roomSize_x = Random.Range(4, 14);
+        //    int roomSize_y = Random.Range(4, 12);
+
+        //    DataBuilding b = new DataBuilding();
+        //    b.left = Random.Range(0, size_x - roomSize_x);
+        //    b.top = Random.Range(0, size_y - roomSize_y);
+        //    b.width = roomSize_x;
+        //    b.height = roomSize_y;
+
+        //    if (!BuildingCollides(b))
+        //    {
+        //        buildings.Add(b);
+        //    }
+        //    else
+        //    {
+        //        maxFails--;
+        //        if(maxFails <=0)
+        //        {
+        //            break;
+        //        }
+        //    } 
+
+        //    foreach(DataBuilding b2 in buildings)
+        //    {
+        //        MakeBuilding(b2);
+        //    }
+
+        //    //connects every building with a path
+        //    for(int i = 0; i < buildings.Count; i++)
+        //    {
+        //        if (!buildings[i].isConnected)
+        //        {
+        //            int j = Random.Range(1, buildings.Count);
+
+        //            MakePath(buildings[i], buildings[(i + j) % buildings.Count]);
+        //        }
+        //    }
+
+        //    ThickenPath();
+        //}
+    }
+
+    void MakeAvenue()
+    {
+        int avenueThickness = 2;
+
+        //generates starting coordinates for the avenue
+        int start_x = Random.Range(0, size_x);
+        int start_y = 0;
+
+        //generates ending coordinates for the avenue
+        int end_x = Random.Range(0, size_x);
+        int end_y = size_y - 1;
+        map_data[end_x, end_y] = 3;
+
+        //generates a middle point for the two nodes to connect to 
+        int mid_x = Random.Range(0, size_x);
+        int mid_y = size_y / 2;
+
+        //connects the start node to the middle node
+        while (start_y != mid_y)
         {
-            int roomSize_x = Random.Range(4, 14);
-            int roomSize_y = Random.Range(4, 12);
-
-            DataBuilding b = new DataBuilding();
-            b.left = Random.Range(0, size_x - roomSize_x);
-            b.top = Random.Range(0, size_y - roomSize_y);
-            b.width = roomSize_x;
-            b.height = roomSize_y;
-
-            if (!BuildingCollides(b))
+            map_data[start_x, start_y] = 3;
+            for (int x = 0; x <= avenueThickness; x++)
             {
-                buildings.Add(b);
+                map_data[start_x + x, start_y] = 3;
+                map_data[start_x - x, start_y] = 3;
             }
-            else
+            start_y += start_y < mid_y ? 1 : -1;
+        }
+        while (start_x != mid_x)
+        {
+            map_data[start_x, start_y] = 3;
+            for (int y = 0; y <= avenueThickness; y++)
             {
-                maxFails--;
-                if(maxFails <=0)
-                {
-                    break;
-                }
-            } 
-
-            foreach(DataBuilding b2 in buildings)
-            {
-                MakeBuilding(b2);
+                map_data[start_x, start_y + y] = 3;
+                map_data[start_x, start_y - y] = 3;
             }
+            start_x += start_x < mid_x ? 1 : -1;
+        }
 
-            //connects every building with a path
-            for(int i = 0; i < buildings.Count; i++)
+        //connects the middle node to the end node
+        while (mid_y != end_y)
+        {
+            map_data[mid_x, mid_y] = 3;
+            for (int x = 0; x <= avenueThickness; x++)
             {
-                if (!buildings[i].isConnected)
-                {
-                    int j = Random.Range(1, buildings.Count);
-
-                    MakePath(buildings[i], buildings[(i + j) % buildings.Count]);
-                }
+                map_data[mid_x + x, mid_y] = 3;
+                map_data[mid_x - x, mid_y] = 3;
             }
+            mid_y += mid_y < end_y ? 1 : -1;
+        }
+        while (mid_x != end_x)
+        {
+            map_data[mid_x, mid_y] = 3;
+            for (int y = 0; y <= avenueThickness; y++)
+            {
+                map_data[mid_x, mid_y + y] = 3;
+                map_data[mid_x, mid_y - y] = 3;
+            }
+            mid_x += mid_x < end_x ? 1 : -1;
         }
     }
+
 
     bool BuildingCollides(DataBuilding b)
     {
@@ -177,5 +245,42 @@ public class TileDataMap {
 
         b1.isConnected = true;
         b2.isConnected = true;
+    }
+
+    void ThickenPath()
+    {
+        for (int x = 0; x < size_x; x++)
+        {
+            for (int y = 0; y <size_y; y++)
+            {
+                if (map_data[x, y] == 3 && HasAdjacentGrass(x, y))
+                    map_data[x, y] = 3;
+            }
+        }
+    }
+
+    bool HasAdjacentGrass(int x, int y)
+    {
+        //checks up, down, left, and right of each tile for grass
+        if (x > 0 && map_data[x - 1, y] == 2)
+            return true;
+        if (x < size_x - 1 && map_data[x + 1, y] == 2)
+            return true;
+        if (y > 0 && map_data[x, y - 1] == 2)
+            return true;
+        if (y < size_y - 1 && map_data[x, y + 1] == 2)
+            return true;
+
+        //checks diagonals of each tile for grass
+        if (x > 0 && y > 0 && map_data[x - 1, y - 1] == 2)
+            return true;
+        if (x < size_x - 1 && y > 0 && map_data[x + 1, y - 1] == 2)
+            return true;
+        if (x > 0 && y < size_y - 1 && map_data[x - 1, y + 1] == 2)
+            return true;
+        if (x < size_x - 1 && y < size_y - 1 && map_data[x + 1, y + 1] == 2)
+            return true;
+
+        return false;
     }
 }
