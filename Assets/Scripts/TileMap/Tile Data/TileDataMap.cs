@@ -131,63 +131,47 @@ public class TileDataMap {
 
     void MakeAvenue()
     {
-        int avenueThickness = 2;
-
         //generates starting coordinates for the avenue
-        int start_x = Random.Range(0, size_x);
-        int start_y = 0;
+        Vector2 startNode = new Vector2(Random.Range(0, size_x), 0);
 
-        //generates ending coordinates for the avenue
-        int end_x = Random.Range(0, size_x);
-        int end_y = size_y - 1;
-        map_data[end_x, end_y] = 3;
+        //generates ending coordinates for the avenue and retextures the node on the map
+        Vector2 endNode = new Vector2(Random.Range(0, size_x), Random.Range((size_y / 2) - 1, size_y)); 
 
-        //generates a middle point for the two nodes to connect to 
-        int mid_x = Random.Range(0, size_x);
-        int mid_y = size_y / 2;
-
-        //connects the start node to the middle node
-        while (start_y != mid_y)
+        //connects the start node to the end node in the y direction
+        while (startNode.y != endNode.y)
         {
-            map_data[start_x, start_y] = 3;
-            for (int x = 0; x <= avenueThickness; x++)
+            map_data[(int)startNode.x, (int)startNode.y] = 3;
+            if (startNode.x < endNode.x - 4)
             {
-                map_data[start_x + x, start_y] = 3;
-                map_data[start_x - x, start_y] = 3;
+                for (int x = 0; x < 4; x++)
+                {
+                    if (startNode.x + x < (float)size_x)
+                        map_data[(int)startNode.x + x, (int)startNode.y] = 3;
+                }
             }
-            start_y += start_y < mid_y ? 1 : -1;
-        }
-        while (start_x != mid_x)
-        {
-            map_data[start_x, start_y] = 3;
-            for (int y = 0; y <= avenueThickness; y++)
+            else
             {
-                map_data[start_x, start_y + y] = 3;
-                map_data[start_x, start_y - y] = 3;
+                for (int x = 0; x < 4; x++)
+                {
+                    if (startNode.x - x != -1)
+                        map_data[(int)startNode.x - x, (int)startNode.y] = 3;
+                }
             }
-            start_x += start_x < mid_x ? 1 : -1;
+
+            startNode.y += startNode.y < (int)endNode.y ? 1 : -1;
         }
 
-        //connects the middle node to the end node
-        while (mid_y != end_y)
+        //connects the start node to the end node in the x direction
+        while (startNode.x != endNode.x)
         {
-            map_data[mid_x, mid_y] = 3;
-            for (int x = 0; x <= avenueThickness; x++)
+            map_data[(int)startNode.x, (int)startNode.y] = 3;
+
+            for (int y = 0; y < 4; y++)
             {
-                map_data[mid_x + x, mid_y] = 3;
-                map_data[mid_x - x, mid_y] = 3;
+                map_data[(int)startNode.x, (int)startNode.y - y] = 3;
             }
-            mid_y += mid_y < end_y ? 1 : -1;
-        }
-        while (mid_x != end_x)
-        {
-            map_data[mid_x, mid_y] = 3;
-            for (int y = 0; y <= avenueThickness; y++)
-            {
-                map_data[mid_x, mid_y + y] = 3;
-                map_data[mid_x, mid_y - y] = 3;
-            }
-            mid_x += mid_x < end_x ? 1 : -1;
+
+            startNode.x += startNode.x < (int)endNode.x ? 1 : -1;
         }
     }
 
