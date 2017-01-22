@@ -59,6 +59,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   parentToReturn: {fileID: 0}
+  placeholder: {fileID: 0}
 --- !u!114 &114493466440822636
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -168,7 +169,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: -331, y: 290}
-  m_SizeDelta: {x: 225, y: 75}
+  m_SizeDelta: {x: 200, y: 75}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!225 &225864053260029562
 CanvasGroup:
