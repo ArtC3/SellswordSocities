@@ -1,4 +1,5 @@
 # SellswordSocities
 ##Specifications
--Unity 5.5.0f3
--Preproduction
+- Unity 5.5.0f3
+- Preproduction
+

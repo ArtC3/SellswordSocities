@@ -19,17 +19,20 @@ public class DropZone : MonoBehaviour, IDropHandler {
                     //create a copy of the item dropped then reset its values and place it in the TaskChoices
                     GameObject temp = Instantiate(d.gameObject);
                     temp.transform.SetParent(d.parentToReturn);
+                    temp.transform.SetSiblingIndex(d.placeholder.transform.GetSiblingIndex());
                     temp.GetComponent<CanvasGroup>().blocksRaycasts = true;
                     d.parentToReturn = this.transform;
                     break;
                 case dropZoneTypes.TASKCHOICES:
                     if (d.parentToReturn == this.transform) break; //If we're dropping the draggable in the same location don't bother
+                    Destroy(d.placeholder);
                     Destroy(d.gameObject);//If an item from the scheduler is returned to choices it is destroyed
                     break;
                 case dropZoneTypes.GARBAGECOLLECT:
                     //Tasks in TaskChoices must be industructable
                     if (d.parentToReturn.gameObject.GetComponent<DropZone>().dZType == dropZoneTypes.TASKCHOICES)
                         break;
+                    Destroy(d.placeholder);
                     Destroy(d.gameObject);
                     break;
                 default:
